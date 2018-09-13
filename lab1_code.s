@@ -48,8 +48,8 @@ for_all_in_array:
 	sll	$t1, $t0, 2	# 4*i (Gets the address increment based on the iteration of the loop by increments of 4 bytes)
 	add	$t2, $a0, $t1	# address = ARRAY + 4*i (Increase the address by the increment from the previous line)
 	lw	$t3, 0($t2)	# n = A[i] (Obtain the current number to be added to the array sum)
-       	add	$v0, $v0, $t3	# Sum = Sum + n (Adds the current number to the array sum)
-        	addi	$t0, $t0, 1	# i++ (Increase the counter/iteration of loop by 1)
+    add	$v0, $v0, $t3	# Sum = Sum + n (Adds the current number to the array sum)
+    addi	$t0, $t0, 1	# i++ (Increase the counter/iteration of loop by 1)
   	j	for_all_in_array	# next element
 	
 end_for_all:
@@ -78,7 +78,7 @@ For_i_in_string:
 	beq	$t2, $zero, End	#end loop if current element is NUL
 	addi 	$v0, $v0, 1	#Length += 1, Increments string length count by 1
 	addi	$t1, $t1, 1	#Address = Address + 4 bytes, Move to next element in the String
-j	For_i_in_string  #proceeds to the next iteration of the loop	
+	j	For_i_in_string  #proceeds to the next iteration of the loop	
 
 End:
 	jr	$ra
@@ -114,7 +114,7 @@ For_s_in_string:
 	lw	$t0, 0($sp)		# POP the $t0, Restore the value before 
 	addi	$sp, $sp, 4		
 	addi	$t0, $t0, 1		#Address = Address + 1 byte, move to next element
-j	For_s_in_string	#Proceed to next loop	
+	j	For_s_in_string	#Proceed to next loop	
 
 End_of_String:
 	lw	$ra, 0($sp)		# Pop return address to caller
@@ -132,7 +132,7 @@ End_of_String:
 to_upper:
 
 	#### Write your solution here ####
-    	lb	$t0, 0($a0)	#  load the character to be transformed to uppercase
+    lb	$t0, 0($a0)	#  load the character to be transformed to uppercase
 	addi	$t1, $t0, -97	#  compute char - 97
 	addi	$t2, $t0, -122	#  compute char - 122
 
@@ -141,7 +141,7 @@ if:				#Check whether the char is a lowercase letter
 	bgtz	$t2, end_if	#  if char - 122 > 0, end if
 
 then:
-addi	$t0, $t0, -32	#Uppercase character  = Lowercase character - 32 (Ascii Table)
+	addi	$t0, $t0, -32	#Uppercase character  = Lowercase character - 32 (Ascii Table)
 	sb	$t0, 0($a0)	#Store the Uppercase character to memory
 
 end_if:
@@ -157,6 +157,34 @@ end_if:
 #	
 #	EXAMPLE: reverse_string( ‘abcd’ ) = ‘dcba’
 #################################################################
+reverse_string:
+	addi	$sp, $sp, -4 #PUSH $ra into Stack
+	sw		$ra, 0($sp)
+	jal		string_length #Get the length of the string
+	add  	$t0, $v0, 0 # Set $t0 = Length of the String
+	add 	$t1, $zero, $zero #initialize the index of string as 0
+	addi  	$t2, $t0, -1 #Max Index = Length - 1
+	srl     $t0, $t0, 1 # Break_Index = Length / 2 (Integer Division)
+
+For_x_in_string:
+	beq		$t1, $t0, Break # if index($t1) == Break_index($t0), break
+	add 	$t3, $a0, $t1 # $t3 = Address of the current element to switch
+	sub     $t4, $t2, $t1 # index of the element to switch with  =  Max_Index($t2) - Current_Index($t1)
+	add 	$t4, $a0, $t4 # $t4 = Address of the current element to switch with
+    lb      $t5, 0($t3)   # Load the element(a)to switch
+    lb      $t6, 0($t4)   #Load the element(b) to switch with
+    sb      $t5, 0($t4)   # a --> b
+    sb      $t6, 0($t3)   # b --> a
+    addi    $t1, $t1, 1   # index += 1, move to next element to switch
+    j       For_x_in_string # Next loop
+
+Break:
+	add     $v0, $a0, $zero #Return the Address of the reversed string
+	lw 		$ra, 0($sp) #Pop $ra
+	addi    $sp, $sp, 4
+	jr		$ra
+
+	
 
 
 ##############################################################################
@@ -181,7 +209,16 @@ STR_for_each_ascii:
 	.asciiz "\n\nstring_for_each(str, ascii)\n"
 
 STR_for_each_to_upper:
-	.asciiz "\n\nstring_for_each(str, to_upper)\n\n"	
+	.asciiz "\n\nstring_for_each(str, to_upper)\n\n"
+
+
+STR_reverse_string_odd:
+	.asciiz "abcdefg"
+STR_reverse_string_even:
+	.asciiz "abcd"
+
+STR_string_reverse_result:
+	.asciiz "\n\nreverse_string(str)\n\n"
 
 	.text
 	.globl main
@@ -268,14 +305,55 @@ main:
 	
 	la	$a0, STR_str
 	jal	print_test_string
+    ## reverse_string test
 	
-	
+	#  str = "abcdefg"  odd chars
+	li	$v0, 4
+	la	$a0, NLNL
+	syscall
+
+	la  $a0, STR_reverse_string_odd
+	jal print_test_string
+    
+	la  $a0, STR_reverse_string_odd
+	jal reverse_string
+ 
+	la  $a0, STR_string_reverse_result
+	li  $v0, 4
+	syscall
+
+	la  $a0, STR_reverse_string_odd
+	jal print_test_string
+    
+    #  str = "abcd"  even chars
+    li	$v0, 4
+	la	$a0, NLNL
+	syscall
+
+	la  $a0, STR_reverse_string_even
+	jal print_test_string
+    
+	la  $a0, STR_reverse_string_even
+	jal reverse_string
+ 
+	la  $a0, STR_string_reverse_result
+	li  $v0, 4
+	syscall
+
+	la  $a0, STR_reverse_string_even
+	jal print_test_string
+    
+    #BONUS TASK TEST
+    #TODO
+
+
 	lw	$ra, 0($sp)	# POP return address
 	addi	$sp, $sp, 4	
 	
 	jr	$ra
 
-
+
+
 ##############################################################################
 #
 #  DESCRIPTION : Prints out 'str = ' followed by the input string surronded
@@ -310,7 +388,7 @@ STR_quote:
 	jr	$ra
 	
 
-
+
 ##############################################################################
 #
 #  DESCRIPTION: Prints out the Ascii value of a character.
