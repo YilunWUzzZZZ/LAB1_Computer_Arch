@@ -48,8 +48,8 @@ for_all_in_array:
 	sll	$t1, $t0, 2	# 4*i, Gets the address increment based on the iteration of the loop by increments of 4 bytes
 	add	$t2, $a0, $t1	# address = ARRAY + 4*i, Increase the address by the increment from the previous line
 	lw	$t3, 0($t2)	# n = A[i], Obtain the current number to be added to the array sum
-    add	$v0, $v0, $t3	# Sum = Sum + n, Adds the current number to the array sum
-    addi	$t0, $t0, 1	# i++, Increase the counter/iteration of loop by 1
+    	add	$v0, $v0, $t3	# Sum = Sum + n, Adds the current number to the array sum
+    	addi	$t0, $t0, 1	# i++, Increase the counter/iteration of loop by 1
   	j	for_all_in_array	# next element
 	
 end_for_all:
