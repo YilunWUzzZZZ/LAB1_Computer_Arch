@@ -44,12 +44,12 @@ for_all_in_array:
 
 	#### Append a MIPS-instruktion before each of these comments
 	
-	beq	$t0, $a1, end_for_all	# Done if i == N (Breaks out of the loop when iteration is equivalent to number of elements in the array)
-	sll	$t1, $t0, 2	# 4*i (Gets the address increment based on the iteration of the loop by increments of 4 bytes)
-	add	$t2, $a0, $t1	# address = ARRAY + 4*i (Increase the address by the increment from the previous line)
-	lw	$t3, 0($t2)	# n = A[i] (Obtain the current number to be added to the array sum)
-    add	$v0, $v0, $t3	# Sum = Sum + n (Adds the current number to the array sum)
-    addi	$t0, $t0, 1	# i++ (Increase the counter/iteration of loop by 1)
+	beq	$t0, $a1, end_for_all	# Done if i == N, Breaks out of the loop when iteration is equivalent to number of elements in the array
+	sll	$t1, $t0, 2	# 4*i, Gets the address increment based on the iteration of the loop by increments of 4 bytes
+	add	$t2, $a0, $t1	# address = ARRAY + 4*i, Increase the address by the increment from the previous line
+	lw	$t3, 0($t2)	# n = A[i], Obtain the current number to be added to the array sum
+    add	$v0, $v0, $t3	# Sum = Sum + n, Adds the current number to the array sum
+    addi	$t0, $t0, 1	# i++, Increase the counter/iteration of loop by 1
   	j	for_all_in_array	# next element
 	
 end_for_all:
@@ -70,7 +70,7 @@ end_for_all:
 string_length:
 
 	#### Write your solution here ####
-	add	$v0, $zero, $zero	#initialize Length to 0
+	add	$v0, $zero, $zero	#initialize length count of String to 0
 	addi	$t1, $a0, 0		#initialize the current Address of the first element in the String
 
 For_i_in_string:
@@ -78,7 +78,7 @@ For_i_in_string:
 	beq	$t2, $zero, End	#end loop if current element is NUL
 	addi 	$v0, $v0, 1	#Length += 1, Increments string length count by 1
 	addi	$t1, $t1, 1	#Address = Address + 4 bytes, Move to next element in the String
-	j	For_i_in_string  #proceeds to the next iteration of the loop	
+	j	For_i_in_string  #proceeds to the next iteration of the For_i_in_string loop	
 
 End:
 	jr	$ra
@@ -102,11 +102,11 @@ string_for_each:
 	sw	$ra, 0($sp)
 
 	#### Write your solution here ####
-	add	$t0, $a0, $zero	#Initialize $t0 as Address of the first element
+	add	$t0, $a0, $zero	#Initialize $t0 as Address of the first element in the string
 
 For_s_in_string:
 	lb	$t1, 0($t0)		#Load the current element in the string
-	beq	$t1, $zero, End_of_String	#Jump out of the loop and proceeds to label End_of_String if NUL occurs
+	beq	$t1, $zero, End_of_String	#Jump out of the loop and proceeds to End_of_String if NUL occurs
 	add	$a0, $t0, $zero	#Set $a0 to the Address of the current element
 	addi	$sp, $sp, -4		# PUSH the $t0 into Stack, save as caller
 	sw	$t0, 0($sp)
@@ -114,7 +114,7 @@ For_s_in_string:
 	lw	$t0, 0($sp)		# POP the $t0, Restore the value before 
 	addi	$sp, $sp, 4		
 	addi	$t0, $t0, 1		#Address = Address + 1 byte, move to next element
-	j	For_s_in_string	#Proceed to next loop	
+	j	For_s_in_string	#Proceed to the next iteration of the For_s_in_string loop	
 
 End_of_String:
 	lw	$ra, 0($sp)		# Pop return address to caller
@@ -132,16 +132,16 @@ End_of_String:
 to_upper:
 
 	#### Write your solution here ####
-    lb	$t0, 0($a0)	#  load the character to be transformed to uppercase
+    lb	$t0, 0($a0)	#  load the character to be transformed to uppercase character
 	addi	$t1, $t0, -97	#  compute char - 97
 	addi	$t2, $t0, -122	#  compute char - 122
 
-if:				#Check whether the char is a lowercase letter
+if:				#Check whether the char is a lowercase character
 	bltz	$t1, end_if	#  if char - 97 < 0, end if
 	bgtz	$t2, end_if	#  if char - 122 > 0, end if
 
 then:
-	addi	$t0, $t0, -32	#Uppercase character  = Lowercase character - 32 (Ascii Table)
+	addi	$t0, $t0, -32	#Uppercase character  = Lowercase character - 32 (Ascii Table conversion from upper to lower case)
 	sb	$t0, 0($a0)	#Store the Uppercase character to memory
 
 end_if:
@@ -162,7 +162,7 @@ reverse_string:
 	jal		string_length #Get the length of the string by calling string_length
 	add  	$t0, $v0, 0 # Set $t0 = Length of the String
 	add 	$t1, $zero, $zero #initialize the index of string as 0
-	addi  	$t2, $t0, -1 #Max Index = Length - 1
+	addi  	$t2, $t0, -1 #Max Index of the string = Length - 1
 	srl     $t0, $t0, 1 # Break_Index = Length / 2 (Integer Division)
 
 For_x_in_string:
@@ -175,7 +175,7 @@ For_x_in_string:
     sb      $t5, 0($t4)   # a --> b
     sb      $t6, 0($t3)   # b --> a
     addi    $t1, $t1, 1   # index += 1, move to next element to switch
-    j       For_x_in_string # Next loop
+    j       For_x_in_string # Next iteration of the For_x_in_string loop
 
 Break:
 	lw 		$ra, 0($sp) #Pop $ra
@@ -193,8 +193,8 @@ Break:
 #
 #########################################################################
 camelcase:
-	addi	$t0, $a0, 0	# Initialize the current address as the address of fisrt element in the string
-	li    	$t1, 0 # a Flag that indicates which case(uppercase or lowercase) to use, (0 to use uppercase, 1 to use lowercase)
+	addi	$t0, $a0, 0	# Initialize the current address as the address of first element in the string
+	li    	$t1, 0 # a Flag that indicates which case(uppercase or lowercase) to use, (0 to use uppercase letter, 1 to use lowercase letter)
 	
 For_c_in_string:
 	lb 		$t2, 0($t0) #Load the current element in the string
@@ -209,25 +209,25 @@ Use_Lower:
 	If_Is_Upper:
 		addi	$t3, $t2, -65	#  compute char - 65
 		addi	$t4, $t2, -90	#  compute char - 90
-		bltz	$t3, Next 		# if it's lower case , Go to Next 
+		bltz	$t3, Next 		# if it's lower case , Go to Next subroutine
 		bgtz	$t4, Next
-		addi 	$t2, $t2, 32	#Lowercase = Uppercase + 32, Convert to Lowercase
+		addi 	$t2, $t2, 32	#Lowercase = Uppercase + 32, Convert to Lowercase letter
 		sb      $t2, 0($t0)		#Store the change to the memory
-		j       Next 			#Next Loop
+		j       Next 			#Next iteration of the loop
 
 Use_Upper:
 	li 		$t1, 1 #set the flag to 1, prepare for using Lowercase
 	If_Is_Lower:
 		addi	$t3, $t2, -97	#  compute char - 97
 		addi	$t4, $t2, -122	#  compute char - 122
-		bltz	$t3, Next 		# if it's upper case, Go to Next
+		bltz	$t3, Next 		# if it's upper case, Go to Next subroutine
 		bgtz	$t4, Next
-		addi 	$t2, $t2, -32 	#Uppercase = Lowercase - 32, Convert to Uppercase
+		addi 	$t2, $t2, -32 	#Uppercase = Lowercase - 32, Convert to Uppercase letter
 		sb      $t2, 0($t0) 	#Store the change to the memory
 
 
 Next:
-	addi	$t0, $t0, 1 #Address = Address + 1 , Move to next element
+	addi	$t0, $t0, 1 #Address = Address + 1 , Move to next element in the string
 	j 		For_c_in_string
 
 End_loop:
