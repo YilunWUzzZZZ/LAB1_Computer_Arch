@@ -209,7 +209,7 @@ Use_Lower:
 	If_Is_Upper:
 		addi	$t3, $t2, -65	#  compute char - 65
 		addi	$t4, $t2, -90	#  compute char - 90
-		bltz	$t3, Next 		# if it's lower case , Go to Next subroutine
+		bltz	$t3, Next 		# if it's lower case , Go to "Next" label
 		bgtz	$t4, Next
 		addi 	$t2, $t2, 32	#Lowercase = Uppercase + 32, Convert to Lowercase letter
 		sb      $t2, 0($t0)		#Store the change to the memory
@@ -220,7 +220,7 @@ Use_Upper:
 	If_Is_Lower:
 		addi	$t3, $t2, -97	#  compute char - 97
 		addi	$t4, $t2, -122	#  compute char - 122
-		bltz	$t3, Next 		# if it's upper case, Go to Next subroutine
+		bltz	$t3, Next 		# if it's uppercase, Go to "Next" label
 		bgtz	$t4, Next
 		addi 	$t2, $t2, -32 	#Uppercase = Lowercase - 32, Convert to Uppercase letter
 		sb      $t2, 0($t0) 	#Store the change to the memory
