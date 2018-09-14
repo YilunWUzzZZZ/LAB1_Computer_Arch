@@ -153,14 +153,13 @@ end_if:
 #
 #DESCRIPTION:   Reverse the string in place
 #	INPUT:  $a0 -- address to a NUL terminated string.
-#	OUTPUT: $v0 -- reversed string ended with NUL
 #	
 #	EXAMPLE: reverse_string( ‘abcd’ ) = ‘dcba’
 #################################################################
 reverse_string:
 	addi	$sp, $sp, -4 #PUSH $ra into Stack
 	sw		$ra, 0($sp)
-	jal		string_length #Get the length of the string
+	jal		string_length #Get the length of the string by calling string_length
 	add  	$t0, $v0, 0 # Set $t0 = Length of the String
 	add 	$t1, $zero, $zero #initialize the index of string as 0
 	addi  	$t2, $t0, -1 #Max Index = Length - 1
@@ -179,13 +178,60 @@ For_x_in_string:
     j       For_x_in_string # Next loop
 
 Break:
-	add     $v0, $a0, $zero #Return the Address of the reversed string
 	lw 		$ra, 0($sp) #Pop $ra
 	addi    $sp, $sp, 4
 	jr		$ra
 
+
+###############################################################################
+##
+#DESCRIPTION:   capitalizes only every other letter in the string
+
+#	INPUT:	$a0 -- 	address to a NUL terminated string.
+#
+#	EXAMPLE: camelcase(UNIVERSITY) = UnIvErSiTy
+#
+#########################################################################
+camelcase:
+	addi	$t0, $a0, 0	# Initialize the current address as the address of fisrt element in the string
+	li    	$t1, 0 # a Flag that indicates which case(uppercase or lowercase) to use, (0 to use uppercase, 1 to use lowercase)
+	
+For_c_in_string:
+	lb 		$t2, 0($t0) #Load the current element in the string
+	beq		$t2, $zero, End_loop #break if we reach the end of string
 	
 
+If_To_Use_Upper:
+	beq		$t1, $zero, Use_Upper
+
+Use_Lower:
+	li 		$t1, 0  #set the flag to 0, prepare for using Uppercase
+	If_Is_Upper:
+		addi	$t3, $t2, -65	#  compute char - 65
+		addi	$t4, $t2, -90	#  compute char - 90
+		bltz	$t3, Next 		# if it's lower case , Go to Next 
+		bgtz	$t4, Next
+		addi 	$t2, $t2, 32	#Lowercase = Uppercase + 32, Convert to Lowercase
+		sb      $t2, 0($t0)		#Store the change to the memory
+		j       Next 			#Next Loop
+
+Use_Upper:
+	li 		$t1, 1 #set the flag to 1, prepare for using Lowercase
+	If_Is_Lower:
+		addi	$t3, $t2, -97	#  compute char - 97
+		addi	$t4, $t2, -122	#  compute char - 122
+		bltz	$t3, Next 		# if it's upper case, Go to Next
+		bgtz	$t4, Next
+		addi 	$t2, $t2, -32 	#Uppercase = Lowercase - 32, Convert to Uppercase
+		sb      $t2, 0($t0) 	#Store the change to the memory
+
+
+Next:
+	addi	$t0, $t0, 1 #Address = Address + 1 , Move to next element
+	j 		For_c_in_string
+
+End_loop:
+	jr		$ra
 
 ##############################################################################
 #
@@ -219,6 +265,12 @@ STR_reverse_string_even:
 
 STR_string_reverse_result:
 	.asciiz "\n\nreverse_string(str)\n\n"
+
+STR_camelcase_result:
+	.asciiz "\n\ncamelcase(str)\n\n"
+
+STR_camelcase:
+	.asciiz "MYcamelCaseTest"
 
 	.text
 	.globl main
@@ -343,8 +395,23 @@ main:
 	la  $a0, STR_reverse_string_even
 	jal print_test_string
     
-    #BONUS TASK TEST
-    #TODO
+    #camelcase TEST
+    li	$v0, 4
+	la	$a0, NLNL
+	syscall
+
+	la  $a0, STR_camelcase
+	jal print_test_string
+    
+	la  $a0, STR_camelcase
+	jal camelcase
+ 
+	la  $a0, STR_camelcase_result
+	li  $v0, 4
+	syscall
+
+	la  $a0, STR_camelcase
+	jal print_test_string
 
 
 	lw	$ra, 0($sp)	# POP return address
